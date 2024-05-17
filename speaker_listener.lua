@@ -1,3 +1,6 @@
+require"speakerPlay"
+local file = https://cdn.discordapp.com/attachments/374721515301634060/1240526043480068158/16_-_LOVE_WILL_LIGHT_THE_WAY.wav?ex=66478a28&is=664638a8&hm=21b6520fa4e2568e267068b466830f037819b5703e014a379c5be617af314041&
+
 -- attach the modem
 local modem = peripheral.find("modem")
 
@@ -27,6 +30,7 @@ local function playSoundOnSpeakers(speakers, sound, volume, pitch)
     end
 end
 
+
 -- 'main' function
 -- listens to the channel and plays received sounds
 while true do
@@ -37,7 +41,8 @@ while true do
             local sound = message.sound
             local volume = message.volume
             local pitch = message.pitch
-            playSoundOnSpeakers(speakers, sound, volume, pitch)
+            playMusicOnSpeakers(speakers,file)
+            --playSoundOnSpeakers(speakers, sound, volume, pitch)
         else
             print("No speakers are attached. womp womp")
         end

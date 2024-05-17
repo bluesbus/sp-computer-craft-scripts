@@ -33,7 +33,7 @@ while true do
     local event, side, receivedChannel, replyChannel, message, distance = os.pullEvent("modem_message")
     if receivedChannel == channel then
         local speakers = findSpeakers()
-        if #speakers &gt; 0 then
+        if #speakers > 0 then
             local sound = message.sound
             local volume = message.volume
             local pitch = message.pitch

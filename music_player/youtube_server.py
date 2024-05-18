@@ -7,7 +7,7 @@ import logging
 app = Flask(__name__)
 
 # Directory for the music files
-DOWNLOAD_DIR = "music_downloads"
+DOWNLOAD_DIR = os.path.join(os.getcwd(), "music_downloads")
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 
@@ -31,12 +31,18 @@ def download_and_convert(youtube_url):
             audio_file_path = ydl.prepare_filename(info_dict).replace('.webm', '.wav').replace('.m4a', '.wav')
             logging.info(f"Downloaded audio to {audio_file_path}")
 
-        # Convert to 8-bit unsigned WAV, 48 kHz, mono
-        output_path = os.path.join(DOWNLOAD_DIR, f"{info_dict['id']}.wav")
-        ffmpeg.input(audio_file_path).output(output_path, format='wav', acodec='pcm_u8', ac=1, ar='48k').run(overwrite_output=True)
+        # Convert to DFPWM using ffmpeg
+        output_path = os.path.join(DOWNLOAD_DIR, f"{info_dict['id']}.dfpwm")
+        ffmpeg.input(audio_file_path).output(output_path, ac=1, ar='48k', acodec='dfpwm').run(overwrite_output=True)
         logging.info(f"Converted audio to {output_path}")
+
+        # Check if the file was created successfully
+        if not os.path.exists(output_path):
+            raise FileNotFoundError(f"Converted file not found: {output_path}")
+
         os.remove(audio_file_path)
         logging.info(f"Deleted original file {audio_file_path}")
+
         return output_path
     except Exception as e:
         logging.error(f"Error during download and conversion: {e}")
@@ -64,9 +70,11 @@ def download():
 @app.route('/audio/<filename>', methods=['GET'])
 def serve_audio(filename):
     file_path = os.path.join(DOWNLOAD_DIR, filename)
+    logging.debug(f"Serving file from path: {file_path}")
     if os.path.exists(file_path):
         return send_file(file_path)
     else:
+        logging.error(f"File not found: {file_path}")
         return jsonify({"error": "File not found"}), 404
 
 if __name__ == '__main__':
